@@ -245,6 +245,19 @@ async function decrypt(){
     s.textContent="❌ Decryption failed"
   }
 }
+  // consle and inspect element disable
+            document.addEventListener('contextmenu', function(e) {e.preventDefault();});document.addEventListener('keydown', function(e) {
+// F12
+    if (e.keyCode === 123) {e.preventDefault();}
+// Ctrl+U
+    if (e.ctrlKey && e.keyCode === 85) {e.preventDefault();}
+// Ctrl+Shift+I (Inspect)
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {e.preventDefault();}
+// Ctrl+Shift+J (Console)
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {e.preventDefault();}
+    // Ctrl+S (Save page)
+    if (e.ctrlKey && e.keyCode === 83) {e.preventDefault();}});
 </script>
 </body>
 </html>
+
