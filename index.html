@@ -1,294 +1,267 @@
 
-
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Lamp Toggle Login — Working</title>
-</head>
+<meta charset="UTF-8">
+<title>Secure Vault</title>
 
+<style>
+*{
+  margin:0;padding:0;box-sizing:border-box;
+  font-family:Inter,system-ui,sans-serif
+}
+body{
+  height:100vh;
+  background:radial-gradient(circle at top,#1e293b,#020617);
+  display:flex;color:#e5e7eb
+}
+.sidebar{
+  width:220px;
+  background:#020617;
+  border-right:1px solid #1e293b;
+  padding:22px;
+}
+.logo{
+  font-size:20px;font-weight:700;
+  margin-bottom:30px;
+}
+.nav button{
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  background:#020617;
+  border:1px solid #1e293b;
+  color:#c7d2fe;
+  border-radius:12px;
+  cursor:pointer;
+}
+.nav button.active,
+.nav button:hover{
+  background:linear-gradient(135deg,#22d3ee,#6366f1);
+  color:#020617;font-weight:700;
+}
+.main{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.panel{
+  width:420px;
+  background:rgba(2,6,23,.9);
+  border:1px solid #1e293b;
+  border-radius:22px;
+  padding:28px;
+}
+h1{font-size:22px;margin-bottom:6px}
+p{font-size:13px;color:#94a3b8;margin-bottom:22px}
+
+.card{
+  background:#020617;
+  border:1px solid #1e293b;
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:16px
+}
+label{
+  font-size:12px;color:#94a3b8;
+  margin-bottom:6px;display:block
+}
+input{
+  width:100%;padding:12px;
+  background:#020617;
+  border:1px solid #1e293b;
+  border-radius:10px;
+  color:#e5e7eb
+}
+button.action{
+  width:100%;padding:15px;
+  border:none;border-radius:14px;
+  background:linear-gradient(135deg,#22d3ee,#6366f1);
+  color:#020617;font-weight:800;
+  cursor:pointer
+}
+.status{
+  margin-top:14px;font-size:13px;
+  min-height:18px
+}
+.hidden{display:none}
+</style>
+</head>
 <body>
 
-  <!-- hidden switch first so we can target the whole wrap with "~" -->
-  <input id="switch" type="checkbox" />
-
-  <div class="wrap">
-    <div class="left">
-      <form class="login-form" action="#" onsubmit="return false;">
-        <h2>Member Login</h2>
-        <input type="text" placeholder="Username" autocomplete="username" />
-        <input type="password" placeholder="Password" autocomplete="current-password" />
-        <button type="submit">Sign in</button>
-      </form>
-    </div>
-
-    <div class="right">
-      <!-- glow area covers right half for soft light -->
-      <div class="glow" aria-hidden="true"></div>
-
-      <!-- clicking this label toggles #switch -->
-      <label for="switch" class="lamp-label" aria-hidden="false">
-        <div class="lamp" role="button" aria-pressed="false" tabindex="0">
-          <div class="lamp-bulb" aria-hidden="true">
-            <div class="filament"></div>
-          </div>
-          <div class="neck"></div>
-          <div class="base"></div>
-          <div class="lamp-caption">Lamp (click)</div>
-        </div>
-      </label>
-    </div>
+<div class="sidebar">
+  <div class="logo">🔐 SecureVault</div>
+  <div class="nav">
+    <button class="active" onclick="show('encrypt')">Encrypt</button>
+    <button onclick="show('decrypt')">Decrypt</button>
   </div>
-</body>
+</div>
 
-</html>
-<style>
-    :root {
-  --bg: #0f1113;
-  --panel: #1f272b;
-  --muted: #bfc7cb;
-  --accent: #ffd54a;
-}
-* {
-  box-sizing: border-box;
-}
-body {
-  margin: 0;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(180deg, #081018 0%, #0f1113 100%);
-  font-family: Inter, system-ui, Arial, sans-serif;
-  color: var(--muted);
-}
+<div class="main">
 
-/* Hidden checkbox placed BEFORE layout so we can use general sibling selectors */
-#switch {
-  display: none;
-}
+<!-- ENCRYPT -->
+<div class="panel" id="encrypt">
+  <h1>Encrypt File</h1>
+  <p>Encrypt file with metadata protection.</p>
 
-.wrap {
-  width: 820px;
-  max-width: 95vw;
-  height: 420px;
-  border-radius: 18px;
-  background: var(--panel);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-  overflow: hidden;
-  display: flex;
-  position: relative;
-}
+  <div class="card">
+    <label>Select File</label>
+    <input type="file" id="eFile">
+  </div>
 
-/* Left = form area, Right = lamp area */
-.left,
-.right {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  padding: 36px;
-}
+  <div class="card">
+    <label>Password (12+ chars)</label>
+    <input type="password" id="ePass">
+  </div>
 
-.left {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
-}
+  <button class="action" onclick="encrypt()">Encrypt & Download</button>
+  <div class="status" id="eStatus"></div>
+</div>
 
-.right {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent);
-}
+<!-- DECRYPT -->
+<div class="panel hidden" id="decrypt">
+  <h1>Decrypt File</h1>
+  <p>Restore using original password.</p>
 
-/* lamp container is inside label so clicking it toggles the checkbox */
-.lamp-label {
-  cursor: pointer;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  width: 160px;
-  height: 320px;
-  user-select: none;
-}
+  <div class="card">
+    <label>Encrypted File (.enc)</label>
+    <input type="file" id="dFile">
+  </div>
 
-.lamp {
-  width: 100px;
-  height: 220px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 8px;
-}
+  <div class="card">
+    <label>Password</label>
+    <input type="password" id="dPass">
+  </div>
 
-.lamp-bulb {
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  background: #444;
-  box-shadow: inset 0 -6px 12px rgba(0, 0, 0, 0.6);
-  transition: background 0.45s ease, box-shadow 0.45s ease, transform 0.35s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  <button class="action" onclick="decrypt()">Decrypt & Download</button>
+  <div class="status" id="dStatus"></div>
+</div>
 
-/* a simple filament decoration */
-.filament {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08) inset;
-  opacity: 0.12;
-  transition: opacity 0.45s ease, transform 0.45s ease;
-}
+</div>
 
-.neck {
-  width: 8px;
-  height: 60px;
-  background: #666;
-  border-radius: 4px;
-}
-.base {
-  width: 64px;
-  height: 16px;
-  background: #555;
-  border-radius: 6px;
-}
-
-/* background glow area (covers right side) */
-.glow {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 50%;
-  pointer-events: none;
-  transition: box-shadow 0.45s ease, opacity 0.45s ease;
-  opacity: 0;
-  z-index: 0;
-}
-
-/* Login form: initially hidden with opacity and pointer-events disabled */
-.login-form {
-  width: 100%;
-  max-width: 360px;
-  background: rgba(255, 255, 255, 0.04);
-  padding: 28px;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
-  text-align: center;
-  transform: translateY(-8px) scale(0.995);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.9, 0.2, 1);
-  z-index: 2;
-}
-
-.login-form h2 {
-  margin: 0 0 16px 0;
-  color: #fff;
-  font-size: 20px;
-}
-.login-form input {
-  width: 100%;
-  padding: 12px 14px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(0, 0, 0, 0.25);
-  color: #fff;
-  outline: none;
-  font-size: 14px;
-}
-.login-form button {
-  width: 100%;
-  margin-top: 12px;
-  padding: 12px 14px;
-  border-radius: 8px;
-  border: none;
-  background: var(--accent);
-  color: #111;
-  font-weight: 600;
-  cursor: pointer;
-}
-.hint {
-  font-size: 13px;
-  margin-top: 10px;
-  color: rgba(255, 255, 255, 0.65);
-}
-
-/* --- When checked: light ON --- */
-/* Because checkbox is before .wrap, we use general sibling selector */
-#switch:checked ~ .wrap .lamp-bulb {
-  background: var(--accent);
-  box-shadow: 0 0 60px 18px rgba(255, 213, 74, 0.12),
-    0 0 28px 8px rgba(255, 213, 74, 0.18);
-  transform: translateY(-4px) scale(1.02);
-}
-#switch:checked ~ .wrap .filament {
-  opacity: 0.9;
-  transform: scale(1.02);
-  box-shadow: 0 0 30px rgba(255, 213, 74, 0.8);
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(255, 255, 255, 0.9),
-    rgba(255, 213, 74, 0.8)
-  );
-}
-
-/* big glow on right area */
-#switch:checked ~ .wrap .glow {
-  opacity: 1;
-  box-shadow: -120px 0 220px 40px rgba(255, 213, 74, 0.12),
-    -60px 0 120px 20px rgba(255, 213, 74, 0.08) inset;
-}
-
-/* show login form smoothly */
-#switch:checked ~ .wrap .login-form {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0) scale(1);
-}
-
-/* optional small label under lamp */
-.lamp-caption {
-  margin-top: 10px;
-  color: var(--muted);
-  font-size: 13px;
-  text-align: center;
-  opacity: 0.9;
-}
-
-/* small responsive tweaks */
-@media (max-width: 720px) {
-  .wrap {
-    flex-direction: column;
-    height: auto;
-    padding: 20px;
-    gap: 18px;
-  }
-  .glow {
-    display: none;
-  }
-  .lamp-label {
-    width: 120px;
-    height: 220px;
-  }
-}
-
-</style>
 <script>
-    (function () {
-  const label = document.querySelector(".lamp-label");
-  const checkbox = document.getElementById("switch");
-  label.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      checkbox.checked = !checkbox.checked;
-      checkbox.dispatchEvent(new Event("change", { bubbles: true }));
-    }
-  });
-})();
+function show(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.add('hidden'))
+  document.getElementById(id).classList.remove('hidden')
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'))
+  event.target.classList.add('active')
+}
 
+async function encrypt(){
+  const f=document.getElementById("eFile").files[0]
+  const p=document.getElementById("ePass").value
+  const s=document.getElementById("eStatus")
+  if(!f||!p){s.textContent="❌ Missing file or password";return}
+  if(p.length<12){s.textContent="⚠️ Password too short (12+ required)";return}
+
+  s.textContent="Encrypting..."
+
+  try{
+    const buf=await f.arrayBuffer()
+    const enc=new TextEncoder()
+
+    const salt=crypto.getRandomValues(new Uint8Array(16))
+    const iv=crypto.getRandomValues(new Uint8Array(12))
+
+    const keyMat=await crypto.subtle.importKey(
+      "raw",enc.encode(p),"PBKDF2",false,["deriveKey"]
+    )
+    const key=await crypto.subtle.deriveKey(
+      {name:"PBKDF2",salt,iterations:2000000,hash:"SHA-256"},
+      keyMat,{name:"AES-GCM",length:256},false,["encrypt"]
+    )
+
+    const meta=enc.encode(JSON.stringify({name:f.name,type:f.type}))
+    const metaLen=new Uint32Array([meta.length])
+
+    const plaintext=new Uint8Array(4+meta.length+buf.byteLength)
+    plaintext.set(new Uint8Array(metaLen.buffer),0)
+    plaintext.set(meta,4)
+    plaintext.set(new Uint8Array(buf),4+meta.length)
+
+    const ciphertext=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,plaintext)
+
+    const header=new Uint8Array(1+salt.length+iv.length)
+    header[0]=1
+    header.set(salt,1)
+    header.set(iv,17)
+
+    const blob=new Blob([header,new Uint8Array(ciphertext)])
+    const a=document.createElement("a")
+    a.href=URL.createObjectURL(blob)
+    a.download=f.name+".enc"
+    a.click()
+
+    s.textContent="✅ Encrypted successfully"
+  }catch(e){
+    console.error(e)
+    s.textContent="❌ Encryption failed"
+  }
+}
+
+async function decrypt(){
+  const f=document.getElementById("dFile").files[0]
+  const p=document.getElementById("dPass").value
+  const s=document.getElementById("dStatus")
+  if(!f||!p){s.textContent="❌ Missing file or password";return}
+  s.textContent="Decrypting..."
+
+  try{
+    const buf=new Uint8Array(await f.arrayBuffer())
+    if(buf.length<29) throw "invalid file"
+
+    const salt=buf.slice(1,17)
+    const iv=buf.slice(17,29)
+    const ciphertext=buf.slice(29)
+
+    const enc=new TextEncoder()
+    const dec=new TextDecoder()
+
+    const keyMat=await crypto.subtle.importKey(
+      "raw",enc.encode(p),"PBKDF2",false,["deriveKey"]
+    )
+    const key=await crypto.subtle.deriveKey(
+      {name:"PBKDF2",salt,iterations:2000000,hash:"SHA-256"},
+      keyMat,{name:"AES-GCM",length:256},false,["decrypt"]
+    )
+
+    const plaintext=await crypto.subtle.decrypt({name:"AES-GCM",iv},key,ciphertext)
+    const data=new Uint8Array(plaintext)
+
+    const metaLen=new DataView(data.buffer).getUint32(0,true)
+    const metaBuf=data.slice(4,4+metaLen)
+    const meta=JSON.parse(dec.decode(metaBuf))
+    const fileData=data.slice(4+metaLen)
+
+    const blob=new Blob([fileData],{type:meta.type})
+    const a=document.createElement("a")
+    a.href=URL.createObjectURL(blob)
+    a.download=meta.name
+    a.click()
+
+    s.textContent="✅ Decrypted successfully"
+  }catch(e){
+    console.error(e)
+    s.textContent="❌ Decryption failed"
+  }
+}
+
+
+  // block keys and right click
+document.addEventListener('contextmenu', function(e) {e.preventDefault();});document.addEventListener('keydown', function(e) {
+// F12
+    if (e.keyCode === 123) {e.preventDefault();}
+// Ctrl+U
+    if (e.ctrlKey && e.keyCode === 85) {e.preventDefault();}
+// Ctrl+Shift+I (Inspect)
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {e.preventDefault();}
+// Ctrl+Shift+J (Console)
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {e.preventDefault();}
+    // Ctrl+Shift+c (Console)
+    if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {e.preventDefault();}
+    // Ctrl+S (Save page)
+    if (e.ctrlKey && e.keyCode === 83) {e.preventDefault();}});
 </script>
+</body>
+</html>
